@@ -1,6 +1,7 @@
 ﻿#include "GameScene.h"
 #include "TextureManager.h"
 #include <cassert>
+#include<random>
 
 using namespace DirectX;
 
@@ -17,10 +18,16 @@ void GameScene::Initialize() {
 	sprite_ = Sprite::Create(textureHandle_, {100, 50});
 	textureHandle_ = TextureManager::Load("mario.jpg");
 	model_ = Model::Create();
-	worldTransform_.scale_ = {5.0f, 5.0f, 5.0f};
-	worldTransform_.rotation_ = {XM_PI / 4.0f, XM_PI / 4.0f, 0.0f};
-	worldTransform_.translation_ = {10.0f, 10.0f, 10.0f};
-	worldTransform_.Initialize();
+	std::random_device seed_gen;
+	std::mt19937_64 engine(seed_gen());
+	std::uniform_real_distribution<float> rotDist(0.0f, XM_2PI);
+	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
+	for (size_t i = 0; i < _countof(worldTransform_); i++) {
+		worldTransform_[i].scale_ = {1.0f, 1.0f, 1.0f};
+		worldTransform_[i].rotation_ = {rotDist(engine), rotDist(engine), rotDist(engine)};
+		worldTransform_[i].translation_ = {rotDist(engine), rotDist(engine), rotDist(engine)};
+		worldTransform_[i].Initialize();
+	}
 	viewProjection_.Initialize();
 	soundDataHandle_ = audio_->LoadWave("se_sad03.wav");
 	//audio_->PlayWave(soundDataHandle_);
@@ -40,18 +47,20 @@ void GameScene::Update() {
 	// std::string strDebug = std::string("transration:4.0") + std::to_string(translation_);
 	// std::string strDebug2 = std::string("rotation:") + std::to_string(rotation_);
 	// std::string strDebug3 = std::string("transration:") + std::to_string(scale_);
-	debugText_->SetPos(50, 70);
-	debugText_->Printf(
-	  "translation:(%f,%f,%f)", worldTransform_.translation_.x, worldTransform_.translation_.y,
-	  worldTransform_.translation_.z);
-	debugText_->SetPos(50, 90);
-	debugText_->Printf(
-	  "rotation:(%f,%f,%f)", worldTransform_.rotation_.x, worldTransform_.rotation_.y,
-	  worldTransform_.rotation_.z);
-	debugText_->SetPos(50, 110);
-	debugText_->Printf(
-	 "scale:(%f,%f,%f)", worldTransform_.scale_.x, worldTransform_.scale_.y,
-	  worldTransform_.scale_.z);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//debugText_->SetPos(50, 70);
+	//debugText_->Printf(
+	 // "translation:(%f,%f,%f)", worldTransform_.translation_.x, worldTransform_.translation_.y,
+	 // worldTransform_.translation_.z);
+	//debugText_->SetPos(50, 90);
+	//debugText_->Printf(
+	  //"rotation:(%f,%f,%f)", worldTransform_.rotation_.x, worldTransform_.rotation_.y,
+	  //worldTransform_.rotation_.z);
+	//debugText_->SetPos(50, 110);
+	//debugText_->Printf(
+	 //"scale:(%f,%f,%f)", worldTransform_.scale_.x, worldTransform_.scale_.y,
+	  //worldTransform_.scale_.z);
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// debugText_->Print(strDebug2, 50, 70, 1.0f);
 	// debugText_->Print(strDebug3, 50, 90, 1.0f);
@@ -83,7 +92,9 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+	for (size_t i = 0; i < _countof(worldTransform_); i++) {
+		model_->Draw(worldTransform_[i], viewProjection_, textureHandle_);
+	}
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
