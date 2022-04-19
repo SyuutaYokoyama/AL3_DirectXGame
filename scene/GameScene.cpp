@@ -14,8 +14,9 @@ void GameScene::Initialize() {
 	std::mt19937_64 engine(seed_gen());
 	std::uniform_real_distribution<float> rotDist(0.0f, XM_2PI);
 	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
-	worldTransform_->translation_ = {0.0f, 10.0f, 0.0f};
-	viewProjection_.target = {10, 0, 0};
+	worldTransform_->translation_ = {0.0f, 0.0f, 0.0f};
+	viewProjection_.target = {0, 0, 0};
+	viewProjection_.up = {cosf(XM_PI / 4.0f),sinf(XM_PI / 4.0f), 0.0f};
 	viewProjection_.Initialize();
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
@@ -31,6 +32,7 @@ void GameScene::Initialize() {
 		worldTransform_[i].translation_ = {posDist(engine), posDist(engine), posDist(engine)};
 		worldTransform_[i].Initialize();
 	}
+	
 	
 	soundDataHandle_ = audio_->LoadWave("se_sad03.wav");
 	//audio_->PlayWave(soundDataHandle_);
@@ -67,25 +69,37 @@ void GameScene::Update() {
 	// debugText_->Print(strDebug2, 50, 70, 1.0f);
 	// debugText_->Print(strDebug3, 50, 90, 1.0f);
 	XMFLOAT3 move = {0, 0, 0};
+	XMFLOAT3 move2 = {0, 0, 0};
+	
 	const float kEyeSpeed = 0.2f;
 	const float kTargetSpeed = 0.2f;
+	const float kUpRotSpeed = 0.05f;
+
 	if (input_->PushKey(DIK_W)) {
 		move = {0, 0, kEyeSpeed};
-	} else if (input_->PushKey(DIK_S)) {
+	} 
+	if (input_->PushKey(DIK_S)) {
 		move = {0, 0, -kEyeSpeed};
 	}
 	if (input_->PushKey(DIK_LEFT)) {
-		move = {-kTargetSpeed, 0, 0};
-	} else if (input_->PushKey(DIK_RIGHT)) {
-		move = {kTargetSpeed, 0, 0};
+		move2 = {-kTargetSpeed, 0, 0};
+	}
+	if (input_->PushKey(DIK_RIGHT)) {
+		move2 = {kTargetSpeed, 0, 0};
+	}
+	if (input_->PushKey(DIK_SPACE)) {
+		viewAngle += kUpRotSpeed;
+		viewAngle = fmodf(viewAngle, XM_2PI);
 	}
 	viewProjection_.eye.x += move.x;
 	viewProjection_.eye.y += move.y;
     viewProjection_.eye.z += move.z;
-	viewProjection_.target.x += move.x;
-	viewProjection_.target.y += move.y;
-	viewProjection_.target.z += move.z;
+	viewProjection_.target.x += move2.x;
+	viewProjection_.target.y += move2.y;
+	viewProjection_.target.z += move2.z;
 
+	viewProjection_.up = {cosf(viewAngle), sinf(viewAngle), 0.0f};
+	
 	viewProjection_.UpdateMatrix();
 
 	debugText_->SetPos(50, 50);
@@ -94,6 +108,10 @@ void GameScene::Update() {
 	debugText_->SetPos(50, 70);
 	debugText_->Printf(
 	  "target:(%f,%f,%f)", viewProjection_.target.x, viewProjection_.target.y, viewProjection_.target.z);
+	debugText_->SetPos(50, 90);
+	debugText_->Printf(
+	  "up:(%f,%f,%f)", viewProjection_.up.x, viewProjection_.up.y,
+	  viewProjection_.up.z);
 }
 
 void GameScene::Draw() {
