@@ -17,7 +17,7 @@ void GameScene::Initialize() {
 	worldTransform_->translation_ = {0.0f, 0.0f, 0.0f};
 	viewProjection_.target = {0, 0, 0};
 	viewProjection_.up = {cosf(XM_PI / 4.0f),sinf(XM_PI / 4.0f), 0.0f};
-	viewProjection_.Initialize();
+	
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
@@ -32,11 +32,10 @@ void GameScene::Initialize() {
 		worldTransform_[i].translation_ = {posDist(engine), posDist(engine), posDist(engine)};
 		worldTransform_[i].Initialize();
 	}
-	
-	
 	soundDataHandle_ = audio_->LoadWave("se_sad03.wav");
 	//audio_->PlayWave(soundDataHandle_);
 	//voiceHandle_ = audio_->PlayWave(soundDataHandle_, true);
+	viewProjection_.Initialize();
 }
 
 void GameScene::Update() {
@@ -72,7 +71,7 @@ void GameScene::Update() {
 	XMFLOAT3 move2 = {0, 0, 0};
 	
 	const float kEyeSpeed = 0.2f;
-	const float kTargetSpeed = 0.2f;
+	const float kTargetSpeed = 0.25f;
 	const float kUpRotSpeed = 0.05f;
 
 	if (input_->PushKey(DIK_W)) {
@@ -110,8 +109,7 @@ void GameScene::Update() {
 	  "target:(%f,%f,%f)", viewProjection_.target.x, viewProjection_.target.y, viewProjection_.target.z);
 	debugText_->SetPos(50, 90);
 	debugText_->Printf(
-	  "up:(%f,%f,%f)", viewProjection_.up.x, viewProjection_.up.y,
-	  viewProjection_.up.z);
+	  "up:(%f,%f,%f)", viewProjection_.up.x, viewProjection_.up.y,viewProjection_.up.z);
 }
 
 void GameScene::Draw() {
