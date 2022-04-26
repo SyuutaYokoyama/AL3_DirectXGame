@@ -19,8 +19,8 @@ void GameScene::Initialize() {
 	//viewProjection_.up = {cosf(XM_PI / 4.0f),sinf(XM_PI / 4.0f), 0.0f};
 	//viewProjection_.fovAngleY = XMConvertToRadians(10.0f);
 	//viewProjection_.aspectRatio = 1.0f;
-	viewProjection_.nearZ = 52.0f;
-	viewProjection_.farZ = 53.0f;
+	//viewProjection_.nearZ = 52.0f;
+	//viewProjection_.farZ = 53.0f;
 	viewProjection_.Initialize();
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
@@ -30,13 +30,40 @@ void GameScene::Initialize() {
 	sprite_ = Sprite::Create(textureHandle_, {100, 100});
 	textureHandle_ = TextureManager::Load("mario.jpg");
 	model_ = Model::Create();
-	for (size_t i = 0; i < _countof(worldTransform_); i++) {
+	/*for (size_t i = 0; i < _countof(worldTransform_); i++) {
 		worldTransform_[i].scale_ = {1.0f, 1.0f, 1.0f};
 		worldTransform_[i].rotation_ = {rotDist(engine), rotDist(engine), rotDist(engine)};
 		worldTransform_[i].translation_ = {posDist(engine), posDist(engine), posDist(engine)};
 		worldTransform_[i].Initialize();
-	}
-	soundDataHandle_ = audio_->LoadWave("se_sad03.wav");
+	}*/
+	//上半身
+	worldTransform_[PartId::Root].Initialize();
+	worldTransform_[PartId::Spine].translation_ = {0, 3.0f, 0};
+	worldTransform_[PartId::Spine].parent_ = &worldTransform_[PartId::Root];
+	worldTransform_[PartId::Spine].Initialize();
+	worldTransform_[PartId::Chest].translation_ = {0, 0, 0};
+	worldTransform_[PartId::Chest].parent_ = &worldTransform_[PartId::Spine];
+	worldTransform_[PartId::Chest].Initialize();
+	worldTransform_[PartId::Head].translation_ = {0, 3.0f, 0};
+	worldTransform_[PartId::Head].parent_ = &worldTransform_[PartId::Chest];
+	worldTransform_[PartId::Head].Initialize();
+	worldTransform_[PartId::ArmL].translation_ = {-3.0f, 0, 0};
+	worldTransform_[PartId::ArmL].parent_ = &worldTransform_[PartId::Chest];
+	worldTransform_[PartId::ArmL].Initialize();
+	worldTransform_[PartId::ArmR].translation_ = {3.0f, 0, 0};
+	worldTransform_[PartId::ArmR].parent_ = &worldTransform_[PartId::Chest];
+	worldTransform_[PartId::ArmR].Initialize();
+	//下半身
+	worldTransform_[PartId::Hip].translation_ = {0, -3.0f, 0};
+	worldTransform_[PartId::Hip].parent_ = &worldTransform_[PartId::Spine];
+	worldTransform_[PartId::Hip].Initialize();
+	worldTransform_[PartId::LegL].translation_ = {-3.0f, -3.0f, 0};
+	worldTransform_[PartId::LegL].parent_ = &worldTransform_[PartId::Hip];
+	worldTransform_[PartId::LegL].Initialize();
+	worldTransform_[PartId::LegR].translation_ = {3.0f, -3.0f, 0};
+	worldTransform_[PartId::LegR].parent_ = &worldTransform_[PartId::Hip];
+	worldTransform_[PartId::LegR].Initialize();
+	//soundDataHandle_ = audio_->LoadWave("se_sad03.wav");
 	//audio_->PlayWave(soundDataHandle_);
 	//voiceHandle_ = audio_->PlayWave(soundDataHandle_, true);
 	
@@ -103,7 +130,7 @@ void GameScene::Update() {
 	//viewProjection_.target.z += move2.z;
 
 	//viewProjection_.up = {cosf(viewAngle), sinf(viewAngle), 0.0f};
-	{ 
+	/*{ 
 		if (input_->PushKey(DIK_W)) {
 			viewProjection_.fovAngleY += 0.01f;
 			viewProjection_.fovAngleY = min(viewProjection_.fovAngleY, XM_PI);
@@ -118,6 +145,37 @@ void GameScene::Update() {
 		} else if (input_->PushKey(DIK_DOWN)) {
 			viewProjection_.nearZ -= 0.1f;
 		}
+	}*/
+
+	{ 
+		XMFLOAT3 move = {0, 0, 0};
+		const float kCharacterSpeed = 0.2f;
+
+		if (input_->PushKey(DIK_LEFT)) {
+			move = {-kCharacterSpeed, 0, 0};
+		} else if (input_->PushKey(DIK_RIGHT)) {
+			move = {kCharacterSpeed, 0, 0};
+		}
+		worldTransform_[PartId::Root].translation_.x += move.x;
+		worldTransform_[PartId::Root].translation_.y += move.y;
+		worldTransform_[PartId::Root].translation_.z += move.z;
+	}
+	{ 
+		const float kChestRotSpeed = 0.05f;
+		if (input_->PushKey(DIK_U)) {
+			worldTransform_[PartId::Chest].rotation_.y -= kChestRotSpeed;
+		}
+		else if (input_->PushKey(DIK_I)) {
+			worldTransform_[PartId::Chest].rotation_.y += kChestRotSpeed;
+		}
+	}
+	{
+		const float kHipRotSpeed = 0.05f;
+		if (input_->PushKey(DIK_J)) {
+			worldTransform_[PartId::Hip].rotation_.y -= kHipRotSpeed;
+		} else if (input_->PushKey(DIK_K)) {
+			worldTransform_[PartId::Hip].rotation_.y += kHipRotSpeed;
+		}
 	}
 	
 	debugText_->SetPos(50, 50);
@@ -131,11 +189,22 @@ void GameScene::Update() {
 	  "up:(%f,%f,%f)", viewProjection_.up.x, viewProjection_.up.y,viewProjection_.up.z);
 	debugText_->SetPos(50, 110);
 	debugText_->Printf(
-	  "fovAngleY(Degree):%f)", XMConvertToDegrees(viewProjection_.fovAngleY));
+	  "fovAngleY(Degree):%f", XMConvertToDegrees(viewProjection_.fovAngleY));
 	debugText_->SetPos(50, 130);
 	debugText_->Printf(
-	"nearZ:%f)", viewProjection_.nearZ);
-
+	"nearZ:%f", viewProjection_.nearZ);
+	debugText_->SetPos(50, 150);
+	debugText_->Printf("root:(%f,%f,%f)", worldTransform_[PartId::Root].translation_.x,
+	worldTransform_[PartId::Root].translation_.y, worldTransform_[PartId::Root].translation_.z );
+	worldTransform_[PartId::Root].UpdateMatrix();
+	worldTransform_[PartId::Spine].UpdateMatrix();
+	worldTransform_[PartId::Chest].UpdateMatrix();
+	worldTransform_[PartId::Head].UpdateMatrix();
+	worldTransform_[PartId::ArmL].UpdateMatrix();
+	worldTransform_[PartId::ArmR].UpdateMatrix();
+	worldTransform_[PartId::Hip].UpdateMatrix();
+	worldTransform_[PartId::LegL].UpdateMatrix();
+	worldTransform_[PartId::LegR].UpdateMatrix();
 	viewProjection_.UpdateMatrix();
 }
 
@@ -165,9 +234,19 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	for (size_t i = 0; i < _countof(worldTransform_); i++) {
+	/*for (size_t i = 0; i < _countof(worldTransform_); i++) {
 		model_->Draw(worldTransform_[i], viewProjection_, textureHandle_);
-	}
+	}*/
+	//model_->Draw(worldTransform_[Root], viewProjection_, textureHandle_);
+	//model_->Draw(worldTransform_[Spine], viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_[Chest], viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_[Head], viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_[ArmL], viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_[ArmR], viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_[Hip], viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_[LegL], viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_[LegR], viewProjection_, textureHandle_);
+
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
