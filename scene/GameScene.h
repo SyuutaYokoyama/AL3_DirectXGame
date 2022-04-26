@@ -63,7 +63,7 @@ class GameScene {
 	Sprite* sprite_ = nullptr;
 	Model* model_ = nullptr;
 	//ワールドトランスフォーム
-	WorldTransform worldTransform_[100];
+	WorldTransform worldTransform_[18];
 	ViewProjection viewProjection_;
 	uint32_t soundDataHandle_ = 0;
 	uint32_t voiceHandle_ = 0;

@@ -14,7 +14,7 @@ void GameScene::Initialize() {
 	std::mt19937_64 engine(seed_gen());
 	std::uniform_real_distribution<float> rotDist(0.0f, XM_2PI);
 	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
-	worldTransform_->translation_ = {0.0f, 0.0f, 0.0f};
+	//worldTransform_->translation_ = {10.0f, 0.0f, 0.0f};
 	//viewProjection_.target = {0, 0, 0};
 	//viewProjection_.up = {cosf(XM_PI / 4.0f),sinf(XM_PI / 4.0f), 0.0f};
 	//viewProjection_.fovAngleY = XMConvertToRadians(10.0f);
@@ -30,43 +30,60 @@ void GameScene::Initialize() {
 	sprite_ = Sprite::Create(textureHandle_, {100, 100});
 	textureHandle_ = TextureManager::Load("mario.jpg");
 	model_ = Model::Create();
+	
+	
 	/*for (size_t i = 0; i < _countof(worldTransform_); i++) {
 		worldTransform_[i].scale_ = {1.0f, 1.0f, 1.0f};
 		worldTransform_[i].rotation_ = {rotDist(engine), rotDist(engine), rotDist(engine)};
 		worldTransform_[i].translation_ = {posDist(engine), posDist(engine), posDist(engine)};
 		worldTransform_[i].Initialize();
 	}*/
-	//上半身
-	worldTransform_[PartId::Root].Initialize();
-	worldTransform_[PartId::Spine].translation_ = {0, 3.0f, 0};
-	worldTransform_[PartId::Spine].parent_ = &worldTransform_[PartId::Root];
-	worldTransform_[PartId::Spine].Initialize();
-	worldTransform_[PartId::Chest].translation_ = {0, 0, 0};
-	worldTransform_[PartId::Chest].parent_ = &worldTransform_[PartId::Spine];
-	worldTransform_[PartId::Chest].Initialize();
-	worldTransform_[PartId::Head].translation_ = {0, 3.0f, 0};
-	worldTransform_[PartId::Head].parent_ = &worldTransform_[PartId::Chest];
-	worldTransform_[PartId::Head].Initialize();
-	worldTransform_[PartId::ArmL].translation_ = {-3.0f, 0, 0};
-	worldTransform_[PartId::ArmL].parent_ = &worldTransform_[PartId::Chest];
-	worldTransform_[PartId::ArmL].Initialize();
-	worldTransform_[PartId::ArmR].translation_ = {3.0f, 0, 0};
-	worldTransform_[PartId::ArmR].parent_ = &worldTransform_[PartId::Chest];
-	worldTransform_[PartId::ArmR].Initialize();
-	//下半身
-	worldTransform_[PartId::Hip].translation_ = {0, -3.0f, 0};
-	worldTransform_[PartId::Hip].parent_ = &worldTransform_[PartId::Spine];
-	worldTransform_[PartId::Hip].Initialize();
-	worldTransform_[PartId::LegL].translation_ = {-3.0f, -3.0f, 0};
-	worldTransform_[PartId::LegL].parent_ = &worldTransform_[PartId::Hip];
-	worldTransform_[PartId::LegL].Initialize();
-	worldTransform_[PartId::LegR].translation_ = {3.0f, -3.0f, 0};
-	worldTransform_[PartId::LegR].parent_ = &worldTransform_[PartId::Hip];
-	worldTransform_[PartId::LegR].Initialize();
+	////上半身
+	//worldTransform_[PartId::Root].Initialize();
+	//worldTransform_[PartId::Spine].translation_ = {0, 3.0f, 0};
+	//worldTransform_[PartId::Spine].parent_ = &worldTransform_[PartId::Root];
+	//worldTransform_[PartId::Spine].Initialize();
+	//worldTransform_[PartId::Chest].translation_ = {0, 0, 0};
+	//worldTransform_[PartId::Chest].parent_ = &worldTransform_[PartId::Spine];
+	//worldTransform_[PartId::Chest].Initialize();
+	//worldTransform_[PartId::Head].translation_ = {0, 3.0f, 0};
+	//worldTransform_[PartId::Head].parent_ = &worldTransform_[PartId::Chest];
+	//worldTransform_[PartId::Head].Initialize();
+	//worldTransform_[PartId::ArmL].translation_ = {-3.0f, 0, 0};
+	//worldTransform_[PartId::ArmL].parent_ = &worldTransform_[PartId::Chest];
+	//worldTransform_[PartId::ArmL].Initialize();
+	//worldTransform_[PartId::ArmR].translation_ = {3.0f, 0, 0};
+	//worldTransform_[PartId::ArmR].parent_ = &worldTransform_[PartId::Chest];
+	//worldTransform_[PartId::ArmR].Initialize();
+	////下半身
+	//worldTransform_[PartId::Hip].translation_ = {0, -3.0f, 0};
+	//worldTransform_[PartId::Hip].parent_ = &worldTransform_[PartId::Spine];
+	//worldTransform_[PartId::Hip].Initialize();
+	//worldTransform_[PartId::LegL].translation_ = {-3.0f, -3.0f, 0};
+	//worldTransform_[PartId::LegL].parent_ = &worldTransform_[PartId::Hip];
+	//worldTransform_[PartId::LegL].Initialize();
+	//worldTransform_[PartId::LegR].translation_ = {3.0f, -3.0f, 0};
+	//worldTransform_[PartId::LegR].parent_ = &worldTransform_[PartId::Hip];
+	//worldTransform_[PartId::LegR].Initialize();
 	//soundDataHandle_ = audio_->LoadWave("se_sad03.wav");
 	//audio_->PlayWave(soundDataHandle_);
 	//voiceHandle_ = audio_->PlayWave(soundDataHandle_, true);
 	
+	//EX1
+	for (int i = 0; i < 18; i++) {
+		float upX =i * 10 - 40;
+		if (i <= 8) {
+			worldTransform_[i].translation_ = {upX, 20, 0};
+			worldTransform_[i].scale_ = {5.0f, 5.0f, 5.0f};
+			worldTransform_[i].Initialize();
+		}
+		if (i >= 9) {
+			float downX = (i - 9) * 10 - 40;
+			worldTransform_[i].translation_ = {downX, -20, 0};
+			worldTransform_[i].scale_ = {5.0f, 5.0f, 5.0f};
+			worldTransform_[i].Initialize();
+		}
+	}
 }
 
 void GameScene::Update() {
@@ -82,7 +99,7 @@ void GameScene::Update() {
 	// std::string strDebug = std::string("transration:4.0") + std::to_string(translation_);
 	// std::string strDebug2 = std::string("rotation:") + std::to_string(rotation_);
 	// std::string strDebug3 = std::string("transration:") + std::to_string(scale_);
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////
 	//debugText_->SetPos(50, 70);
 	//debugText_->Printf(
 	 // "translation:(%f,%f,%f)", worldTransform_.translation_.x, worldTransform_.translation_.y,
@@ -95,9 +112,10 @@ void GameScene::Update() {
 	//debugText_->Printf(
 	 //"scale:(%f,%f,%f)", worldTransform_.scale_.x, worldTransform_.scale_.y,
 	  //worldTransform_.scale_.z);
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////
 	// debugText_->Print(strDebug2, 50, 70, 1.0f);
 	// debugText_->Print(strDebug3, 50, 90, 1.0f);
+	
 	//連続変更処理//
 	//XMFLOAT3 move = {0, 0, 0};
 	//XMFLOAT3 move2 = {0, 0, 0};
@@ -105,7 +123,8 @@ void GameScene::Update() {
 	//const float kEyeSpeed = 0.2f;
 	//const float kTargetSpeed = 0.25f;
 	//const float kUpRotSpeed = 0.05f;
-
+	
+	//なんかの移動
 	/*if (input_->PushKey(DIK_W)) {
 		move = {0, 0, kEyeSpeed};
 	} 
@@ -130,6 +149,8 @@ void GameScene::Update() {
 	//viewProjection_.target.z += move2.z;
 
 	//viewProjection_.up = {cosf(viewAngle), sinf(viewAngle), 0.0f};
+	
+	//視野角変更
 	/*{ 
 		if (input_->PushKey(DIK_W)) {
 			viewProjection_.fovAngleY += 0.01f;
@@ -147,7 +168,8 @@ void GameScene::Update() {
 		}
 	}*/
 
-	{ 
+	//キャラの移動
+	/*{ 
 		XMFLOAT3 move = {0, 0, 0};
 		const float kCharacterSpeed = 0.2f;
 
@@ -159,8 +181,10 @@ void GameScene::Update() {
 		worldTransform_[PartId::Root].translation_.x += move.x;
 		worldTransform_[PartId::Root].translation_.y += move.y;
 		worldTransform_[PartId::Root].translation_.z += move.z;
-	}
-	{ 
+	}*/
+
+	//上半身回転
+	/*{ 
 		const float kChestRotSpeed = 0.05f;
 		if (input_->PushKey(DIK_U)) {
 			worldTransform_[PartId::Chest].rotation_.y -= kChestRotSpeed;
@@ -168,17 +192,20 @@ void GameScene::Update() {
 		else if (input_->PushKey(DIK_I)) {
 			worldTransform_[PartId::Chest].rotation_.y += kChestRotSpeed;
 		}
-	}
-	{
+	}*/
+
+	//下半身回転
+	/*{
 		const float kHipRotSpeed = 0.05f;
 		if (input_->PushKey(DIK_J)) {
 			worldTransform_[PartId::Hip].rotation_.y -= kHipRotSpeed;
 		} else if (input_->PushKey(DIK_K)) {
 			worldTransform_[PartId::Hip].rotation_.y += kHipRotSpeed;
 		}
-	}
-	
-	debugText_->SetPos(50, 50);
+	}*/
+
+	//デバッグテキスト
+	/*debugText_->SetPos(50, 50);
 	debugText_->Printf(
 	  "eye:(%f,%f,%f)", viewProjection_.eye.x, viewProjection_.eye.y, viewProjection_.eye.z);
 	debugText_->SetPos(50, 70);
@@ -195,8 +222,10 @@ void GameScene::Update() {
 	"nearZ:%f", viewProjection_.nearZ);
 	debugText_->SetPos(50, 150);
 	debugText_->Printf("root:(%f,%f,%f)", worldTransform_[PartId::Root].translation_.x,
-	worldTransform_[PartId::Root].translation_.y, worldTransform_[PartId::Root].translation_.z );
-	worldTransform_[PartId::Root].UpdateMatrix();
+	worldTransform_[PartId::Root].translation_.y, worldTransform_[PartId::Root].translation_.z );*/
+
+	//アップデートマトリックスの群
+	/*worldTransform_[PartId::Root].UpdateMatrix();
 	worldTransform_[PartId::Spine].UpdateMatrix();
 	worldTransform_[PartId::Chest].UpdateMatrix();
 	worldTransform_[PartId::Head].UpdateMatrix();
@@ -204,8 +233,10 @@ void GameScene::Update() {
 	worldTransform_[PartId::ArmR].UpdateMatrix();
 	worldTransform_[PartId::Hip].UpdateMatrix();
 	worldTransform_[PartId::LegL].UpdateMatrix();
-	worldTransform_[PartId::LegR].UpdateMatrix();
-	viewProjection_.UpdateMatrix();
+	worldTransform_[PartId::LegR].UpdateMatrix();*/
+	for (int i = 0; i < 18; i++) {
+		worldTransform_[i].UpdateMatrix();
+	}
 }
 
 void GameScene::Draw() {
@@ -239,14 +270,18 @@ void GameScene::Draw() {
 	}*/
 	//model_->Draw(worldTransform_[Root], viewProjection_, textureHandle_);
 	//model_->Draw(worldTransform_[Spine], viewProjection_, textureHandle_);
-	model_->Draw(worldTransform_[Chest], viewProjection_, textureHandle_);
+	//キャラのDraw
+	/*model_->Draw(worldTransform_[Chest], viewProjection_, textureHandle_);
 	model_->Draw(worldTransform_[Head], viewProjection_, textureHandle_);
 	model_->Draw(worldTransform_[ArmL], viewProjection_, textureHandle_);
 	model_->Draw(worldTransform_[ArmR], viewProjection_, textureHandle_);
 	model_->Draw(worldTransform_[Hip], viewProjection_, textureHandle_);
 	model_->Draw(worldTransform_[LegL], viewProjection_, textureHandle_);
-	model_->Draw(worldTransform_[LegR], viewProjection_, textureHandle_);
-
+	model_->Draw(worldTransform_[LegR], viewProjection_, textureHandle_);*/
+	for (int i = 0; i < 18; i++) {
+		model_->Draw(worldTransform_[i], viewProjection_, textureHandle_);
+		
+	}
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
